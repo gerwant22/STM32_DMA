@@ -44,8 +44,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint8_t Message[32];
-uint8_t Lenght;
+uint8_t ReceiveBuffer[32];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -94,16 +93,15 @@ int main(void)
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_UARTEx_ReceiveToIdle_DMA(&huart2, ReceiveBuffer, 32);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    Lenght = sprintf((char *)Message, "Siema\n\r");
+    HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
     HAL_Delay(200);
-    HAL_UART_Transmit_DMA(&huart2, Message, Lenght);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -163,17 +161,20 @@ void SystemClock_Config(void)
   */
 static void MX_NVIC_Init(void)
 {
-  /* DMA1_Stream6_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
+  /* DMA1_Stream5_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
+  /* USART2_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(USART2_IRQn);
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
-  if(huart->Instance = USART2)
+  if (huart->Instance == USART2)
   {
-
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart2, ReceiveBuffer, 32);
   }
 }
 /* USER CODE END 4 */
